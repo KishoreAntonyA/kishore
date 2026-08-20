@@ -1,0 +1,6 @@
+{
+  "name": "AK MODERN CREATING",
+  "description": "Cinematic luxury digital agency portal for AI solutions, creative video production, web apps, resumes, and client project management.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,113 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-montserrat: 'Montserrat', sans-serif;
+    --font-inter: 'Inter', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  body {
+    font-family: var(--font-inter);
+    background-color: #050505;
+    color: #e5e2e1;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-montserrat);
+  }
+
+  .font-mono-code {
+    font-family: var(--font-mono);
+  }
+}
+
+@layer utilities {
+  .glass-panel {
+    background: rgba(13, 13, 13, 0.7);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .glass-card {
+    background: rgba(18, 18, 18, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+  }
+
+  .gold-glow {
+    box-shadow: 0 0 25px rgba(212, 175, 55, 0.2);
+  }
+
+  .gold-glow-lg {
+    box-shadow: 0 0 40px rgba(212, 175, 55, 0.35);
+  }
+
+  .gold-glow-hover:hover {
+    box-shadow: 0 0 30px rgba(212, 175, 55, 0.4);
+  }
+
+  .text-gradient-gold {
+    background: linear-gradient(135deg, #f2ca50 0%, #ffe088 50%, #d4af37 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .btn-gold {
+    background: linear-gradient(135deg, #f2ca50, #d4af37);
+    color: #1a1c1c;
+    font-weight: 700;
+    transition: all 0.2s ease-in-out;
+  }
+
+  .btn-gold:hover {
+    transform: scale(1.02);
+    box-shadow: 0 0 25px rgba(212, 175, 55, 0.4);
+  }
+
+  .btn-outline-silver {
+    background: transparent;
+    border: 1.5px solid rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    transition: all 0.2s ease-in-out;
+  }
+
+  .btn-outline-silver:hover {
+    border-color: #f2ca50;
+    color: #f2ca50;
+    background: rgba(242, 202, 80, 0.05);
+  }
+
+  .input-gold-underlined {
+    background-color: #0d0d0d;
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    color: #e5e2e1;
+    transition: all 0.25s ease;
+  }
+
+  .input-gold-underlined:focus {
+    outline: none;
+    border-bottom-color: #f2ca50;
+    box-shadow: 0 4px 12px -3px rgba(212, 175, 55, 0.4);
+  }
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(13, 13, 13, 0.5);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(212, 175, 55, 0.5);
+}
