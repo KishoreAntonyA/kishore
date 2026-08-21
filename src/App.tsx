@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ViewMode, UserRole, Order, OrderStatus, OrderMessage, DeliverableFile } from './types';
 import { INITIAL_ORDERS } from './data/initialData';
 import { Navbar } from './components/Navbar';
@@ -13,8 +13,18 @@ import { ServicesCatalogView } from './components/ServicesCatalogView';
 import { PortfolioView } from './components/PortfolioView';
 import { AboutView } from './components/AboutView';
 import { GeminiChatbot } from './components/GeminiChatbot';
+import {
+  seedInitialOrdersIfEmpty,
+  subscribeToOrders,
+  saveOrderToFirestore,
+  updateOrderStatusInFirestore,
+  addMessageToOrderInFirestore,
+  addFileToOrderInFirestore
+} from './lib/firestoreOrders';
+import { useAuth } from './lib/AuthContext';
 
 export default function App() {
+  const { user, userProfile } = useAuth();
   const [currentView, setCurrentView] = useState<ViewMode>('home');
   const [userRole, setUserRole] = useState<UserRole>('visitor');
   const [orders, setOrders] = useState<Order[]>(INITIAL_ORDERS);
@@ -22,19 +32,57 @@ export default function App() {
   const [activeTrackingOrderId, setActiveTrackingOrderId] = useState<string>('ord-2024-8991');
   const [activeDetailOrderId, setActiveDetailOrderId] = useState<string>('ord-2024-8991');
 
+  // Sync role with user profile when logged in
+  useEffect(() => {
+    if (userProfile?.role === 'admin') {
+      setUserRole('admin');
+    } else if (user) {
+      setUserRole('client');
+    }
+  }, [user, userProfile]);
+
+  // Initialize Firestore listeners
+  useEffect(() => {
+    // Seed default orders if Firestore is completely empty
+    seedInitialOrdersIfEmpty();
+
+    // Subscribe to real-time order updates
+    const unsubscribe = subscribeToOrders((updatedOrders) => {
+      if (updatedOrders && updatedOrders.length > 0) {
+        setOrders(updatedOrders);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   // Navigation Helper
   const handleNavigate = (view: ViewMode) => {
     setCurrentView(view);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Order Handlers
-  const handleCreateOrder = (newOrder: Order) => {
+  // Order Handlers with Firestore persistence
+  const handleCreateOrder = async (newOrder: Order) => {
     setOrders((prev) => [newOrder, ...prev]);
     setActiveTrackingOrderId(newOrder.id);
+    try {
+      await saveOrderToFirestore(newOrder);
+    } catch (err) {
+      console.error('Failed to save order to Firestore:', err);
+    }
   };
 
-  const handleUpdateOrderStatus = (orderId: string, status: OrderStatus, statusLabel: string) => {
+  const handleUpdateOrderStatus = async (orderId: string, status: OrderStatus, statusLabel: string) => {
+    const newProgress =
+      status === 'completed'
+        ? 100
+        : status === 'draft-ready'
+        ? 80
+        : status === 'active'
+        ? 45
+        : undefined;
+
     setOrders((prev) =>
       prev.map((order) =>
         order.id === orderId
@@ -42,21 +90,23 @@ export default function App() {
               ...order,
               status,
               statusLabel,
-              progressPercentage:
-                status === 'completed'
-                  ? 100
-                  : status === 'draft-ready'
-                  ? 80
-                  : status === 'active'
-                  ? 45
-                  : order.progressPercentage
+              progressPercentage: newProgress !== undefined ? newProgress : order.progressPercentage
             }
           : order
       )
     );
+
+    try {
+      await updateOrderStatusInFirestore(orderId, status, statusLabel, newProgress);
+    } catch (err) {
+      console.error('Failed to update order status in Firestore:', err);
+    }
   };
 
-  const handleSendMessage = (orderId: string, message: OrderMessage) => {
+  const handleSendMessage = async (orderId: string, message: OrderMessage) => {
+    const targetOrder = orders.find((o) => o.id === orderId);
+    const existingMessages = targetOrder ? targetOrder.messages : [];
+
     setOrders((prev) =>
       prev.map((order) =>
         order.id === orderId
@@ -67,9 +117,18 @@ export default function App() {
           : order
       )
     );
+
+    try {
+      await addMessageToOrderInFirestore(orderId, existingMessages, message);
+    } catch (err) {
+      console.error('Failed to add message in Firestore:', err);
+    }
   };
 
-  const handleAddDeliverableFile = (orderId: string, file: DeliverableFile) => {
+  const handleAddDeliverableFile = async (orderId: string, file: DeliverableFile) => {
+    const targetOrder = orders.find((o) => o.id === orderId);
+    const existingFiles = targetOrder ? targetOrder.files : [];
+
     setOrders((prev) =>
       prev.map((order) =>
         order.id === orderId
@@ -80,6 +139,12 @@ export default function App() {
           : order
       )
     );
+
+    try {
+      await addFileToOrderInFirestore(orderId, existingFiles, file);
+    } catch (err) {
+      console.error('Failed to add deliverable in Firestore:', err);
+    }
   };
 
   const handleSelectServiceForBooking = (serviceId: string) => {

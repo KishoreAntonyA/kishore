@@ -90,7 +90,7 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
             </div>
             <div className="flex items-baseline gap-3">
               <span className="font-['Montserrat'] font-extrabold text-3xl md:text-4xl text-white">
-                ${totalStudioRevenue.toLocaleString()}
+                ₹{totalStudioRevenue.toLocaleString()} INR
               </span>
               <span className="text-emerald-400 font-['JetBrains_Mono'] text-xs font-bold bg-emerald-500/10 px-2 py-0.5 rounded">
                 +12.5% this mo
@@ -239,9 +239,9 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
                         </span>
                       </td>
                       <td className="py-4 px-3 whitespace-nowrap">
-                        <span className="text-white font-bold">${order.totalAmount}</span>
+                        <span className="text-white font-bold">₹{order.totalAmount.toLocaleString()} INR</span>
                         <span className="text-[10px] text-[#f2ca50] block">
-                          Paid: ${order.paidAmount} ({Math.round((order.paidAmount / order.totalAmount) * 100)}%)
+                          Paid: ₹{order.paidAmount.toLocaleString()} INR ({Math.round((order.paidAmount / order.totalAmount) * 100)}%)
                         </span>
                       </td>
                       <td className="py-4 px-3 text-[#d0c5af] whitespace-nowrap">

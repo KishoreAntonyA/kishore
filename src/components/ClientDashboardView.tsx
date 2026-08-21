@@ -13,9 +13,21 @@ export const ClientDashboardView: React.FC<ClientDashboardViewProps> = ({
   onNavigate,
   onSelectOrderToTrack
 }) => {
+  const [searchQuery, setSearchQuery] = useState('');
   const [selectedDraftOrder, setSelectedDraftOrder] = useState<Order | null>(null);
   const [feedbackNote, setFeedbackNote] = useState('');
   const [feedbackSent, setFeedbackSent] = useState(false);
+
+  // Filter orders by search query (Order ID, order number, or service name/title)
+  const filteredOrders = orders.filter((order) => {
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) return true;
+    const matchesId = order.id?.toLowerCase().includes(query);
+    const matchesOrderNumber = order.orderNumber?.toLowerCase().includes(query);
+    const matchesService = order.serviceTitle?.toLowerCase().includes(query);
+    const matchesClient = order.clientName?.toLowerCase().includes(query);
+    return matchesId || matchesOrderNumber || matchesService || matchesClient;
+  });
 
   // Derive Client metrics
   const totalOrders = orders.length;
@@ -135,13 +147,39 @@ export const ClientDashboardView: React.FC<ClientDashboardViewProps> = ({
           {/* Main Orders Table (8 cols) */}
           <div className="lg:col-span-8 space-y-4">
             <div className="glass-panel p-6 rounded-2xl border border-white/10 space-y-4">
-              <div className="flex justify-between items-center border-b border-white/10 pb-4">
-                <h3 className="font-['Montserrat'] font-bold text-lg text-white">
-                  Recent Orders &amp; Deliverables
-                </h3>
-                <span className="text-xs font-['JetBrains_Mono'] text-[#d0c5af]">
-                  Showing {orders.length} Active Records
-                </span>
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-white/10 pb-4">
+                <div>
+                  <h3 className="font-['Montserrat'] font-bold text-lg text-white">
+                    Recent Orders &amp; Deliverables
+                  </h3>
+                  <span className="text-xs font-['JetBrains_Mono'] text-[#d0c5af]">
+                    Showing {filteredOrders.length} of {orders.length} Records
+                  </span>
+                </div>
+
+                {/* Search Bar */}
+                <div className="relative w-full sm:w-72">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#d0c5af]">
+                    <span className="material-symbols-outlined text-[18px]">search</span>
+                  </div>
+                  <input
+                    id="client-orders-search-input"
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search by ID, Service, or Client..."
+                    className="w-full pl-9 pr-8 py-2 bg-[#121212] border border-white/15 focus:border-[#f2ca50] focus:ring-1 focus:ring-[#f2ca50] rounded-xl text-xs font-['JetBrains_Mono'] text-white placeholder-[#d0c5af]/50 outline-none transition-all"
+                  />
+                  {searchQuery && (
+                    <button
+                      onClick={() => setSearchQuery('')}
+                      className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-[#d0c5af] hover:text-white transition-colors"
+                      title="Clear search"
+                    >
+                      <span className="material-symbols-outlined text-[16px]">cancel</span>
+                    </button>
+                  )}
+                </div>
               </div>
 
               <div className="overflow-x-auto">
@@ -151,12 +189,28 @@ export const ClientDashboardView: React.FC<ClientDashboardViewProps> = ({
                       <th className="py-3 px-3">Order ID</th>
                       <th className="py-3 px-3">Service</th>
                       <th className="py-3 px-3">Status</th>
+                      <th className="py-3 px-3">Financials (INR)</th>
                       <th className="py-3 px-3">Target Delivery</th>
                       <th className="py-3 px-3 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5">
-                    {orders.map((order) => {
+                    {filteredOrders.length === 0 ? (
+                      <tr>
+                        <td colSpan={6} className="py-10 text-center text-[#d0c5af] space-y-2">
+                          <span className="material-symbols-outlined text-3xl text-[#f2ca50]/60 block mx-auto">search_off</span>
+                          <p className="font-['Montserrat'] text-sm text-white font-semibold">No orders matched &ldquo;{searchQuery}&rdquo;</p>
+                          <p className="text-[11px] text-[#d0c5af]/70">Try searching with a different order ID, tracking number, or service keyword.</p>
+                          <button
+                            onClick={() => setSearchQuery('')}
+                            className="mt-2 px-3 py-1 bg-white/10 hover:bg-white/20 text-white rounded text-[11px] font-['JetBrains_Mono'] transition-colors"
+                          >
+                            Reset Search Filter
+                          </button>
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredOrders.map((order) => {
                       const isDraftReady = order.status === 'draft-ready' || order.status === 'review-pending';
                       return (
                         <tr key={order.id} className="hover:bg-white/5 transition-colors">
@@ -182,6 +236,12 @@ export const ClientDashboardView: React.FC<ClientDashboardViewProps> = ({
                               {order.statusLabel}
                             </span>
                           </td>
+                          <td className="py-4 px-3 whitespace-nowrap">
+                            <span className="text-white font-bold">₹{order.totalAmount.toLocaleString()} INR</span>
+                            <span className="text-[10px] text-[#f2ca50] block">
+                              Paid: ₹{order.paidAmount.toLocaleString()} INR
+                            </span>
+                          </td>
                           <td className="py-4 px-3 text-[#d0c5af] whitespace-nowrap">
                             {order.estimatedDelivery}
                           </td>
@@ -203,7 +263,7 @@ export const ClientDashboardView: React.FC<ClientDashboardViewProps> = ({
                           </td>
                         </tr>
                       );
-                    })}
+                    }))}
                   </tbody>
                 </table>
               </div>

@@ -133,12 +133,15 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
         <div className="glass-panel p-6 md:p-8 rounded-2xl border border-white/15 space-y-6 shadow-2xl">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-white/10 pb-6">
             <div>
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-3">
                 <span className="font-['JetBrains_Mono'] font-extrabold text-xl md:text-2xl text-white">
                   ORDER ID {activeOrder.orderNumber}
                 </span>
                 <span className="bg-[#f2ca50]/20 text-[#f2ca50] border border-[#f2ca50]/40 px-3 py-0.5 rounded-full text-xs font-['JetBrains_Mono'] font-bold uppercase">
                   {activeOrder.statusLabel}
+                </span>
+                <span className="bg-white/5 border border-white/15 px-3 py-0.5 rounded-full text-xs font-['JetBrains_Mono'] font-semibold text-[#f2ca50]">
+                  ₹{activeOrder.totalAmount.toLocaleString()} INR Total (Paid: ₹{activeOrder.paidAmount.toLocaleString()} INR)
                 </span>
               </div>
               <p className="text-sm font-['Montserrat'] text-[#d0c5af] mt-1">
@@ -277,10 +280,11 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
 
                       <button
                         onClick={() => alert(`Downloading draft asset: ${file.name}`)}
-                        className="btn-outline-silver px-3 py-1 rounded text-xs font-['JetBrains_Mono'] flex items-center gap-1 cursor-pointer"
+                        className="btn-outline-silver px-3 py-1.5 rounded-lg text-xs font-['JetBrains_Mono'] flex items-center gap-1.5 cursor-pointer hover:border-[#f2ca50] hover:text-[#f2ca50] hover:bg-[#f2ca50]/10 transition-all shadow-sm"
+                        title={`Download ${file.name}`}
                       >
-                        <span className="material-symbols-outlined text-xs">download</span>
-                        Get File
+                        <span className="material-symbols-outlined text-[15px]">download</span>
+                        <span>Download</span>
                       </button>
                     </div>
                   ))}

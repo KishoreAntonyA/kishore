@@ -80,7 +80,7 @@ export const AdminOrderDetailView: React.FC<AdminOrderDetailViewProps> = ({
     setInvoiceRequested(true);
     setTimeout(() => {
       setInvoiceRequested(false);
-      alert(`Final 50% invoice ($${activeOrder.totalAmount - activeOrder.paidAmount} USD) dispatched to ${activeOrder.clientEmail}`);
+      alert(`Final 50% invoice (₹${(activeOrder.totalAmount - activeOrder.paidAmount).toLocaleString()} INR) dispatched to ${activeOrder.clientEmail}`);
     }, 1000);
   };
 
@@ -216,10 +216,12 @@ export const AdminOrderDetailView: React.FC<AdminOrderDetailViewProps> = ({
 
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={() => alert(`Downloading ${f.name}`)}
-                        className="btn-outline-silver px-3 py-1 rounded text-[11px] font-['JetBrains_Mono'] cursor-pointer"
+                        onClick={() => alert(`Downloading deliverable: ${f.name}`)}
+                        className="btn-outline-silver px-3 py-1.5 rounded-lg text-[11px] font-['JetBrains_Mono'] cursor-pointer flex items-center gap-1.5 hover:border-[#f2ca50] hover:text-[#f2ca50] hover:bg-[#f2ca50]/10 transition-all shadow-sm"
+                        title={`Download ${f.name}`}
                       >
-                        Download
+                        <span className="material-symbols-outlined text-[15px]">download</span>
+                        <span>Download</span>
                       </button>
                     </div>
                   </div>
@@ -236,16 +238,16 @@ export const AdminOrderDetailView: React.FC<AdminOrderDetailViewProps> = ({
               <div className="grid grid-cols-3 gap-4 text-xs font-['JetBrains_Mono']">
                 <div className="p-3 bg-[#141414] rounded-lg border border-white/5">
                   <span className="text-[#d0c5af] block">Total Order Fee</span>
-                  <span className="text-lg font-bold text-white">${activeOrder.totalAmount} USD</span>
+                  <span className="text-lg font-bold text-white">₹{activeOrder.totalAmount.toLocaleString()} INR</span>
                 </div>
                 <div className="p-3 bg-[#141414] rounded-lg border border-white/5">
                   <span className="text-[#d0c5af] block">Paid (50% Deposit)</span>
-                  <span className="text-lg font-bold text-emerald-400">${activeOrder.paidAmount} USD</span>
+                  <span className="text-lg font-bold text-emerald-400">₹{activeOrder.paidAmount.toLocaleString()} INR</span>
                 </div>
                 <div className="p-3 bg-[#141414] rounded-lg border border-white/5">
                   <span className="text-[#d0c5af] block">Remaining Balance</span>
                   <span className="text-lg font-bold text-[#f2ca50]">
-                    ${activeOrder.totalAmount - activeOrder.paidAmount} USD
+                    ₹{(activeOrder.totalAmount - activeOrder.paidAmount).toLocaleString()} INR
                   </span>
                 </div>
               </div>

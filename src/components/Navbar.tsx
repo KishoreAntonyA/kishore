@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { ViewMode, UserRole } from '../types';
 import { BRAND_LOGOS, INSTAGRAM_LINK, INSTAGRAM_DISPLAY } from '../data/initialData';
+import { useAuth } from '../lib/AuthContext';
+import { AuthModal } from './AuthModal';
 
 interface NavbarProps {
   currentView: ViewMode;
@@ -15,13 +17,17 @@ export const Navbar: React.FC<NavbarProps> = ({
   userRole,
   onRoleChange
 }) => {
+  const { user, isAdmin } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [roleMenuOpen, setRoleMenuOpen] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
 
   const isPublicNavActive = ['home', 'services', 'portfolio', 'about'].includes(currentView);
 
   return (
     <>
+      <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
+
       {/* Desktop Navigation */}
       <nav id="main-desktop-navbar" className="bg-[#131313]/85 backdrop-blur-xl docked full-width top-0 sticky z-50 border-b border-white/10 shadow-2xl hidden md:flex">
         <div className="flex justify-between items-center px-8 lg:px-16 py-4 w-full max-w-screen-2xl mx-auto">
@@ -133,6 +139,37 @@ export const Navbar: React.FC<NavbarProps> = ({
               className="bg-gradient-to-r from-[#f2ca50] via-[#ffe088] to-[#d4af37] text-[#3c2f00] font-['JetBrains_Mono'] text-sm font-bold px-6 py-2 rounded gold-glow-hover hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 flex items-center gap-1.5 cursor-pointer shadow-[0_0_20px_rgba(212,175,55,0.25)]"
             >
               Get Started
+            </button>
+
+            {/* Google Sign In / Account Button */}
+            <button
+              id="nav-google-auth-btn"
+              onClick={() => setAuthModalOpen(true)}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-[#f2ca50]/15 border border-white/15 hover:border-[#f2ca50]/50 transition-all text-xs font-['JetBrains_Mono'] cursor-pointer"
+            >
+              {user ? (
+                <>
+                  {user.photoURL ? (
+                    <img
+                      src={user.photoURL}
+                      alt={user.displayName || 'User'}
+                      className="w-6 h-6 rounded-full border border-[#f2ca50]"
+                    />
+                  ) : (
+                    <div className="w-6 h-6 rounded-full bg-[#f2ca50]/20 text-[#f2ca50] flex items-center justify-center font-bold text-[10px]">
+                      {user.displayName?.charAt(0) || 'U'}
+                    </div>
+                  )}
+                  <span className="text-white max-w-[100px] truncate hidden xl:inline">
+                    {user.displayName?.split(' ')[0] || 'Account'}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="material-symbols-outlined text-[16px] text-[#f2ca50]">login</span>
+                  <span className="text-[#e5e2e1] hidden xl:inline">Sign In</span>
+                </>
+              )}
             </button>
 
             {/* Portal & Role Switcher */}
@@ -406,6 +443,17 @@ export const Navbar: React.FC<NavbarProps> = ({
                 Admin Portal
               </button>
             </div>
+
+            <button
+              onClick={() => {
+                setAuthModalOpen(true);
+                setMobileMenuOpen(false);
+              }}
+              className="w-full py-2.5 px-3 bg-[#1e1e1e] hover:bg-[#252525] border border-[#f2ca50]/30 rounded-lg text-xs font-['JetBrains_Mono'] text-[#f2ca50] flex items-center justify-center gap-2"
+            >
+              <span className="material-symbols-outlined text-[16px]">account_circle</span>
+              {user ? `Account (${user.displayName?.split(' ')[0] || 'Logged In'})` : 'Sign In with Google'}
+            </button>
           </div>
         </div>
       )}

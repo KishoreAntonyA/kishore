@@ -38,7 +38,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
             transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
             className="flex flex-col gap-8"
           >
-            <div className="space-y-4">
+            <div className="space-y-4 animate-fade-in-up">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="inline-flex items-center gap-2 bg-[#201f1f]/80 border border-white/10 rounded-full px-4 py-1.5 backdrop-blur-md shadow-[0_0_15px_rgba(212,175,55,0.1)]">
                   <span className="w-2.5 h-2.5 rounded-full bg-[#f2ca50] animate-pulse"></span>
@@ -61,12 +61,12 @@ export const LandingView: React.FC<LandingViewProps> = ({
               </h1>
             </div>
 
-            <p className="font-['Inter'] text-base md:text-lg text-[#d0c5af] max-w-xl leading-relaxed">
+            <p className="font-['Inter'] text-base md:text-lg text-[#d0c5af] max-w-xl leading-relaxed animate-fade-in-up-delay-1">
               Professional, creative and AI-powered digital solutions designed for students, creators, professionals and businesses.
             </p>
 
             {/* CTAs */}
-            <div className="flex flex-wrap gap-3 items-center">
+            <div className="flex flex-wrap gap-3 items-center animate-fade-in-up-delay-2">
               <button
                 id="hero-book-btn"
                 onClick={() => onNavigate('booking')}
